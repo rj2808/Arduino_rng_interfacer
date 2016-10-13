@@ -1,9 +1,3 @@
-                                          
-/********************************/
-/*  Rob Seward 2008-2009        */
-/*  v1.0                        */
-/*  4/20/2009                   */
-/********************************/
 
 #define BINS_SIZE 256
 #define CALIBRATION_SIZE 50000
@@ -18,7 +12,7 @@
 
 /***  Configure the RNG **************/
 int bias_removal = VON_NEUMANN;
-int output_format = ASCII_BYTE;
+int output_format = BINARY;
 int baud_rate = 19200;
 /*************************************/
 
@@ -109,10 +103,10 @@ void buildByte(boolean input){
        out = (out << 1); 
   }
   byte_counter++;
-  byte_counter %= 16;
+  byte_counter %= 1;
   if(byte_counter == 0){
     if (output_format == ASCII_BYTE) Serial.println(out, DEC); //Serial.print(", ");
-    //if (output_format == BINARY) Serial.println(out, BIN);
+    if (output_format == BINARY) Serial.print(out, BIN);
     //Serial.println("");
     out = 0;  
   }
