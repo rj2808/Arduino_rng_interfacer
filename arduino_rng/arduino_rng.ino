@@ -11,9 +11,9 @@
 #define ASCII_BOOL 2
 
 /***  Configure the RNG **************/
-int bias_removal = VON_NEUMANN;
+int bias_removal = NO_BIAS_REMOVAL;
 int output_format = BINARY;
-float baud_rate = 250000;
+float baud_rate = 115200;
 /*************************************/
 
 
@@ -29,12 +29,11 @@ void setup(){
   Serial.begin(baud_rate);
   for (int i=0; i < BINS_SIZE; i++){
     bins[i] = 0; 
-  }  
+  }
 }
 
 void loop(){
   byte threshold;
-
   int adc_value = analogRead(adc_pin);
   byte adc_byte = adc_value >> 2;
   if(calibration_counter >= CALIBRATION_SIZE){
@@ -44,8 +43,12 @@ void loop(){
   if(initializing){
     calibrate(adc_byte);
     calibration_counter++;
-  } else{
-    processInput(adc_byte, threshold);
+  } 
+  else{
+    
+   
+      processInput(adc_byte, threshold);
+    
   }
 }
 
@@ -54,10 +57,10 @@ void processInput(byte adc_byte, byte threshold){
   input_bool = (adc_byte < threshold) ? 1 : 0;
   switch(bias_removal){
     case VON_NEUMANN:
-      vonNeumann(input_bool); 
+      //vonNeumann(input_bool); 
       break;
     case EXCLUSIVE_OR:
-      exclusiveOr(input_bool);
+      //exclusiveOr(input_bool);
       break;
     case NO_BIAS_REMOVAL:
       buildByte(input_bool);
@@ -65,29 +68,6 @@ void processInput(byte adc_byte, byte threshold){
   }
 }
 
-void exclusiveOr(byte input){
-  static boolean flip_flop = 0;
-  flip_flop = !flip_flop;
-  buildByte(flip_flop ^ input);
-}
-
-void vonNeumann(byte input){
-  static int count = 1;
-  static boolean previous = 0;
-  static boolean flip_flop = 0;
-  
-  flip_flop = !flip_flop;
-
-  if(flip_flop){
-    if(input == 1 && previous == 0){
-      buildByte(0);
-    }
-    else if (input == 0 && previous == 1){
-      buildByte(1); 
-    }
-  }
-  previous = input;
-}
 
 void buildByte(boolean input){
   static int byte_counter = 0; 
@@ -105,18 +85,21 @@ void buildByte(boolean input){
   //byte_counter++;
   //byte_counter %= 1;
   //if(byte_counter == 0){
+
+    
     if (output_format == ASCII_BYTE) Serial.println(input, DEC); //Serial.print(", ");
     if (output_format == BINARY) Serial.print(input, BIN);
     //Serial.println("");
     //out = 0;  
   //}
   if (output_format == ASCII_BOOL) Serial.print(input, DEC);
+  
+  
 }
 
 
 void calibrate(byte adc_byte){
   bins[adc_byte]++;  
-  printStatus();
 }
 
 unsigned int findThreshold(){
@@ -139,22 +122,10 @@ unsigned int findThreshold(){
   return i;
 }
 
-//Blinks an LED after each 10th of the calibration completes
-void printStatus(){
-  unsigned int increment = CALIBRATION_SIZE / 10;
-  static unsigned int num_increments = 0; //progress units so far
-  unsigned int threshold;
-
-  threshold = (num_increments + 1) * increment;
-  if(calibration_counter > threshold){
-    num_increments++;
-    //Serial.print("*");
-    blinkLed();
-  }   
-}
-
 void blinkLed(){
   digitalWrite(led_pin, HIGH);
-  delay(30);
+  delay(3);
   digitalWrite(led_pin, LOW);
 }
+
+
