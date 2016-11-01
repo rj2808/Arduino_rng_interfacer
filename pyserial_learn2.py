@@ -14,11 +14,14 @@ def user_choice():
 t1 = time.time()
 while n < 30 :
 	while t :
-		bytesavailable = arduino.inWaiting()
-		if bytesavailable >= p :
-			q = lower+(upper-lower)*int(str(arduino.read(p)), 2)/(2.0**p - 1.0)
-			arduino.flush()
-			t = 0
+        bytes_serial_monitor=arduino.readline()
+        if len(bytes_serial_monitor)>=p:
+            q=lower+(upper-lower)*int(bytes_serial_monitor[-p:],2)
+        #bytesavailable = arduino.inWaiting()
+        #if bytesavailable >= p :
+        #q = lower+(upper-lower)*int(str(arduino.read(p)), 2)/(2.0**p - 1.0)
+        #arduino.flush()
+        t = 0
 	t=1
 	A+=q
 	q=0
