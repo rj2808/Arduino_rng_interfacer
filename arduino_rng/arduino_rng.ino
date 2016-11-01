@@ -119,7 +119,7 @@ unsigned int findThreshold(){                        // screens the received dat
       break;
     }	
   }
-  return i;
+  return i;                                         // returns the bin corresponding to the median value, which is used as a reference for the ADC
 }
 
 
