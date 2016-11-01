@@ -2,12 +2,12 @@
 #define BINS_SIZE 256
 #define CALIBRATION_SIZE 50000
 
-#define NO_BIAS_REMOVAL 0
+#define NO_BIAS_REMOVAL 0                            // bias removal scheme
 #define EXCLUSIVE_OR 1
 #define VON_NEUMANN 2
 
-#define ASCII_BYTE 0
-#define BINARY 1
+#define ASCII_BYTE 0                                 // formats for output
+#define BINARY 1      
 #define ASCII_BOOL 2
 
 /***  Configure the RNG **************/
@@ -33,11 +33,11 @@ void setup(){
 }
 
 void loop(){
-  byte threshold;
+  byte threshold;                                     // byte stores an integer from 0 to 255
   int adc_value = analogRead(adc_pin);
-  byte adc_byte = adc_value >> 2;
+  byte adc_byte = adc_value >> 2;                     // mapping the value to 0-255 range
   if(calibration_counter >= CALIBRATION_SIZE){
-    threshold = findThreshold();
+    threshold = findThreshold();                      // set the threshold once calibration is over
     initializing = false;
   }
   if(initializing){
@@ -47,17 +47,17 @@ void loop(){
   else{
     
    
-      processInput(adc_byte, threshold);
+      processInput(adc_byte, threshold);              // process any input that is fed after the calibration is over
     
   }
 }
 
 void processInput(byte adc_byte, byte threshold){
   boolean input_bool;
-  input_bool = (adc_byte < threshold) ? 1 : 0;
+  input_bool = (adc_byte < threshold) ? 1 : 0;        // compare the input to obtained threshold value and give appropriate output
   switch(bias_removal){
-    case VON_NEUMANN:
-      //vonNeumann(input_bool); 
+    case VON_NEUMANN:                                 // feeds the output of the previous step to the selected bias removal scheme 
+      vonNeumann(input_bool); 
       break;
     case EXCLUSIVE_OR:
       //exclusiveOr(input_bool);
@@ -69,7 +69,7 @@ void processInput(byte adc_byte, byte threshold){
 }
 
 
-void buildByte(boolean input){
+void buildByte(boolean input){                        // responds to the calls of debiasing functions and gives output according to the chosen format
   static int byte_counter = 0; 
   static unsigned int out = 0;
 
@@ -98,11 +98,11 @@ void buildByte(boolean input){
 }
 
 
-void calibrate(byte adc_byte){
+void calibrate(byte adc_byte){                       // while calibration is on, it updated the frequencies in the bins
   bins[adc_byte]++;  
 }
 
-unsigned int findThreshold(){
+unsigned int findThreshold(){                        // screens the received data while calibration and sets threshold as the median
   unsigned long half;
   unsigned long total = 0;
   int i;
@@ -122,10 +122,5 @@ unsigned int findThreshold(){
   return i;
 }
 
-void blinkLed(){
-  digitalWrite(led_pin, HIGH);
-  delay(3);
-  digitalWrite(led_pin, LOW);
-}
 
 
